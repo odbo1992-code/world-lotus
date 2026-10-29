@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>World Lotus · Discord</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{min-height:100%;background:#000}
+  body{min-height:100vh;font-family:'Segoe UI','Inter',system-ui,sans-serif;display:flex;align-items:center;justify-content:center;padding:1.5rem;color:#e8e8e8;position:relative;overflow-x:hidden;background:radial-gradient(ellipse at 50% 0%,#0a0a12 0%,#000 100%)}
+  .stars{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+  .star{position:absolute;border-radius:50%;background:#fff;opacity:0;animation:twinkle var(--dur,6s) ease-in-out infinite;animation-delay:var(--delay,0s);box-shadow:0 0 6px 1px rgba(255,255,255,.6)}
+  @keyframes twinkle{0%{opacity:0;transform:scale(.6)}15%{opacity:1;transform:scale(1)}50%{opacity:.9;transform:scale(1)}70%{opacity:0;transform:scale(.6)}100%{opacity:0;transform:scale(.6)}}
+  .invite-card{position:relative;background:rgba(20,20,20,.78);backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%);border-radius:2rem;padding:2rem;max-width:1100px;width:100%;box-shadow:0 25px 50px -12px rgba(0,0,0,.9),inset 0 1px 1px rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);z-index:10}
+  .content-wrapper{display:flex;flex-wrap:wrap;gap:2.5rem;align-items:flex-start;justify-content:center}
+  .info-panel{flex:1 1 400px;min-width:280px}
+  .server-title{font-size:3rem;font-weight:800;letter-spacing:-.02em;line-height:1.1;color:#f0f0f0;margin-bottom:.6rem;text-shadow:0 2px 12px rgba(0,0,0,.5);cursor:pointer;user-select:none;transition:color .2s}
+  .server-title:hover{color:#d8b0ff}
+  .tagline{font-size:1rem;color:#b0b0b0;margin-bottom:1.4rem;border-left:3px solid #707070;padding-left:.9rem;letter-spacing:.3px}
+  .description{background:rgba(15,15,15,.55);border-radius:1.4rem;padding:1.4rem;border:1px solid rgba(255,255,255,.07);box-shadow:inset 0 1px 4px rgba(0,0,0,.5);margin-bottom:1.2rem}
+  .description p{font-size:1rem;line-height:1.65;color:#d0d0d0}
+  .server-details{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:1.2rem}
+  .detail-block{background:rgba(15,15,15,.5);padding:1rem;border-radius:1rem;border:1px solid rgba(255,255,255,.06)}
+  .detail-title{font-size:.85rem;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:.6rem}
+  .detail-list{list-style:none;display:flex;flex-direction:column;gap:.4rem}
+  .detail-list li{font-size:.9rem;color:#c8c8c8;display:flex;align-items:center;gap:.4rem}
+  .detail-list li::before{content:"•";color:#666}
+  .boost-badge{display:inline-flex;align-items:center;gap:.5rem;background:rgba(160,80,220,.15);border:1px solid rgba(180,100,240,.3);padding:.4rem 1rem;border-radius:50px;font-size:.85rem;color:#d8b0ff;margin-bottom:1.2rem}
+  .boost-badge span{font-weight:700}
+  .roles-container,.bot-commands{background:rgba(15,15,15,.5);padding:1rem;border-radius:1rem;border:1px solid rgba(255,255,255,.06);margin-bottom:1.2rem}
+  .role-item{font-size:.88rem;color:#b8b8b8;line-height:1.5;margin-bottom:.3rem}
+  .role-item strong{color:#e0e0e0}
+  .command-list{display:flex;flex-wrap:wrap;gap:.4rem .8rem;list-style:none;margin-top:.5rem}
+  .command-list li{background:rgba(255,255,255,.05);padding:.25rem .7rem;border-radius:6px;font-size:.82rem;color:#c0c0c0;font-family:monospace}
+  .join-button{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.85rem 2rem;font-size:1rem;font-weight:600;color:#f0f0f0;text-decoration:none;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:50px;transition:all .25s;box-shadow:0 4px 16px rgba(0,0,0,.4);margin-bottom:1.5rem}
+  .join-button:hover{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.3);transform:translateY(-2px)}
+  .members-section{background:rgba(15,15,15,.5);border-radius:1.4rem;padding:1.4rem;border:1px solid rgba(255,255,255,.07)}
+  .members-title{font-size:1.3rem;font-weight:700;color:#e8e8e8;margin-bottom:1rem;padding-bottom:.6rem;border-bottom:1px solid rgba(255,255,255,.08)}
+  .members-list{list-style:none;display:flex;flex-direction:column;gap:1rem}
+  .member{display:flex;gap:1rem;align-items:flex-start;background:rgba(255,255,255,.03);padding:.9rem;border-radius:1rem;border:1px solid rgba(255,255,255,.06)}
+  .member-avatar{width:64px;height:64px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid rgba(255,255,255,.15);background:#222}
+  .member-name{font-size:1.05rem;font-weight:700;color:#f0f0f0;margin-bottom:.25rem}
+  .member-tag{font-size:.8rem;color:#888;font-weight:400;margin-left:.3rem}
+  .member-bio{font-size:.92rem;line-height:1.5;color:#b8b8b8}
+  .widget-container{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;background:rgba(15,15,15,.6);border-radius:1.6rem;padding:1rem;border:1px solid rgba(255,255,255,.09);position:sticky;top:1.5rem}
+  .discord-widget{border-radius:1rem;overflow:hidden;width:350px;height:500px;max-width:100%}
+  iframe{display:block;width:100%;height:100%;border:0}
+  .widget-label{margin-top:.9rem;font-size:.8rem;letter-spacing:1.5px;text-transform:uppercase;color:#909090;background:rgba(0,0,0,.35);padding:.4rem 1.4rem;border-radius:50px;border:1px solid rgba(255,255,255,.08)}
+  .cta-note{text-align:center;margin-top:1.8rem;font-size:.9rem;color:#a0a0a0;display:flex;align-items:center;justify-content:center;gap:1rem;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,.07);padding-top:1.3rem}
+  .cta-note strong{color:#e0e0e0}
+  .cta-note a{color:#d0d0d0;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.2)}
+  .cta-note a:hover{color:#fff}
+  @media(max-width:768px){.invite-card{padding:1.5rem 1rem}.server-title{font-size:2.2rem}.discord-widget{width:100%;height:480px;max-width:350px}.content-wrapper{gap:1.5rem}.member-avatar{width:52px;height:52px}.widget-container{position:static}}
+  .online-badge{position:fixed;top:16px;left:16px;z-index:950;display:flex;align-items:center;gap:.5rem;background:rgba(20,20,20,.8);border:1px solid rgba(74,222,128,.3);border-radius:50px;padding:.45rem 1rem;font-size:.82rem;color:#c8c8c8;backdrop-filter:blur(10px)}
+  .online-dot{width:8px;height:8px;border-radius:50%;background:#4ade80;box-shadow:0 0 8px #4ade80;animation:pulse 1.5s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+  .event-banner{position:fixed;top:0;left:0;right:0;z-index:900;background:linear-gradient(90deg,#7a4fc0,#a070d0,#7a4fc0);background-size:200% 100%;color:#fff;padding:.9rem 1.2rem;text-align:center;font-weight:600;font-size:.95rem;box-shadow:0 4px 20px rgba(160,80,220,.5);display:none;align-items:center;justify-content:center;gap:1rem;animation:bannerGradient 4s linear infinite}
+  .event-banner.show{display:flex}
+  @keyframes bannerGradient{0%{background-position:0% 50%}100%{background-position:200% 50%}}
+  .event-banner .event-close{background:rgba(0,0,0,.25);border:none;color:#fff;width:26px;height:26px;border-radius:50%;cursor:pointer;font-size:.9rem;flex-shrink:0}
+  .admin-trigger{position:fixed;bottom:18px;right:18px;z-index:100;background:rgba(20,20,20,.7);border:1px solid rgba(255,255,255,.1);border-radius:50%;width:44px;height:44px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#666;font-size:1.1rem;backdrop-filter:blur(8px)}
+  .admin-trigger:hover{color:#d8b0ff;border-color:rgba(180,100,240,.5)}
+  .admin-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(10px);z-index:1000;display:none;align-items:flex-start;justify-content:center;padding:2rem 1rem;overflow-y:auto}
+  .admin-overlay.open{display:flex}
+  .admin-panel{background:#141414;border:1px solid rgba(180,100,240,.3);border-radius:1.5rem;max-width:900px;width:100%;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.9)}
+  .admin-header{display:flex;align-items:center;justify-content:space-between;padding:1.2rem 1.5rem;background:linear-gradient(90deg,rgba(160,80,220,.15),transparent);border-bottom:1px solid rgba(255,255,255,.08)}
+  .admin-header h2{font-size:1.25rem;color:#d8b0ff;display:flex;align-items:center;gap:.6rem}
+  .admin-close{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#ccc;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:1.1rem}
+  .admin-close:hover{background:rgba(255,80,80,.2);border-color:rgba(255,80,80,.5);color:#fff}
+  .admin-tabs{display:flex;gap:.3rem;padding:.8rem 1.5rem 0;border-bottom:1px solid rgba(255,255,255,.06);flex-wrap:wrap}
+  .admin-tab{background:transparent;border:none;color:#888;padding:.6rem 1rem;border-radius:.6rem .6rem 0 0;cursor:pointer;font-size:.9rem;font-weight:600;font-family:inherit;border-bottom:2px solid transparent}
+  .admin-tab:hover{color:#ccc;background:rgba(255,255,255,.03)}
+  .admin-tab.active{color:#d8b0ff;border-bottom-color:#a070d0;background:rgba(160,80,220,.08)}
+  .admin-body{padding:1.5rem;max-height:65vh;overflow-y:auto}
+  .admin-pane{display:none}
+  .admin-pane.active{display:block}
+  .admin-form-group{margin-bottom:1rem}
+  .admin-form-group label{display:block;font-size:.82rem;color:#999;text-transform:uppercase;letter-spacing:1px;margin-bottom:.4rem;font-weight:600}
+  .admin-input,.admin-textarea{width:100%;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.12);color:#e8e8e8;padding:.7rem .9rem;border-radius:.7rem;font-size:.92rem;font-family:inherit;resize:vertical}
+  .admin-input:focus,.admin-textarea:focus{outline:none;border-color:#a070d0}
+  .admin-textarea{min-height:90px}
+  .admin-btn{background:linear-gradient(135deg,#7a4fc0,#a070d0);border:none;color:#fff;padding:.7rem 1.4rem;border-radius:.7rem;font-weight:600;font-size:.9rem;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:.5rem}
+  .admin-btn:hover{filter:brightness(1.15);transform:translateY(-1px)}
+  .admin-btn.danger{background:linear-gradient(135deg,#b04040,#d06060)}
+  .admin-btn.ghost{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15)}
+  .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;margin-bottom:1.5rem}
+  .stat-card{background:rgba(160,80,220,.08);border:1px solid rgba(180,100,240,.2);border-radius:1rem;padding:1rem;text-align:center}
+  .stat-card .stat-value{font-size:1.8rem;font-weight:800;color:#d8b0ff;line-height:1}
+  .stat-card .stat-label{font-size:.78rem;color:#999;text-transform:uppercase;letter-spacing:1px;margin-top:.4rem}
+  .analytics-table{width:100%;border-collapse:collapse;font-size:.85rem}
+  .analytics-table th,.analytics-table td{text-align:left;padding:.6rem .7rem;border-bottom:1px solid rgba(255,255,255,.06)}
+  .analytics-table th{color:#888;font-weight:600;text-transform:uppercase;font-size:.72rem;letter-spacing:.5px}
+  .analytics-table td{color:#c8c8c8}
+  .analytics-table tr:hover td{background:rgba(255,255,255,.03)}
+  .session-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#4ade80;margin-right:.5rem;box-shadow:0 0 6px #4ade80;animation:pulse 1.5s infinite}
+  .event-history-list{list-style:none;display:flex;flex-direction:column;gap:.6rem}
+  .event-history-item{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:.7rem;padding:.8rem 1rem;display:flex;justify-content:space-between;gap:1rem}
+  .evt-title{font-weight:700;color:#e0e0e0;font-size:.92rem}
+  .evt-desc{font-size:.85rem;color:#a0a0a0;margin-top:.2rem;line-height:1.4}
+  .evt-time{font-size:.75rem;color:#777;white-space:nowrap}
+  .empty-state{text-align:center;color:#666;padding:2rem 1rem;font-size:.9rem}
+  .code-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);z-index:1500;display:none;align-items:center;justify-content:center;padding:1.5rem}
+  .code-modal.open{display:flex}
+  .code-box{background:#141414;border:1px solid rgba(180,100,240,.3);border-radius:1.2rem;padding:1.8rem;max-width:380px;width:100%;text-align:center}
+  .code-box h3{color:#d8b0ff;margin-bottom:.4rem;font-size:1.1rem}
+  .code-box p{color:#888;font-size:.85rem;margin-bottom:1rem}
+  .code-box input{width:100%;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.15);color:#e8e8e8;padding:.8rem 1rem;border-radius:.7rem;font-size:1rem;text-align:center;font-family:monospace;letter-spacing:2px;margin-bottom:.8rem}
+  .code-box input:focus{outline:none;border-color:#a070d0}
+  .code-error{color:#ff6b6b;font-size:.82rem;min-height:1.2em}
+  .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:#141414;border:1px solid rgba(180,100,240,.4);color:#e8e8e8;padding:.8rem 1.4rem;border-radius:.8rem;font-size:.9rem;box-shadow:0 10px 30px rgba(0,0,0,.7);z-index:2000;opacity:0;pointer-events:none;transition:all .3s;max-width:90vw}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="stars" id="stars"></div>
+
+<div class="online-badge" id="onlineBadge" title="Сейчас на сайте">
+  <span class="online-dot"></span>
+  <span id="onlineCount">0</span> онлайн
+</div>
+
+<div class="event-banner" id="eventBanner">
+  <span class="event-icon">🎉</span>
+  <span id="eventBannerText"></span>
+  <button class="event-close" id="eventBannerClose">✕</button>
+</div>
+
+<main class="invite-card">
+  <div class="content-wrapper">
+    <div class="info-panel">
+      <h1 class="server-title" id="serverTitle">World Lotus</h1>
+      <div class="tagline">Doors · сообщество · РПГ-экономика</div>
+      <div class="description">
+        <p>Добро пожаловать в <strong>World Lotus</strong>! Уникальное сообщество по мотивам Doors с экономикой, ролями и активными участниками.</p>
+      </div>
+      <div class="boost-badge">Нужно бустов · <span>Бусты: 6/36</span></div>
+      <div class="server-details">
+        <div class="detail-block"><div class="detail-title">Текстовые</div><ul class="detail-list"><li>Правила</li><li>Боты</li><li>Чат-модеров</li><li>Форум</li></ul></div>
+        <div class="detail-block"><div class="detail-title">Голосовые</div><ul class="detail-list"><li>DOORS II 1</li><li>ARHIVES II 2</li><li>MINES II 3</li><li>Ивенты</li></ul></div>
+        <div class="detail-block"><div class="detail-title">Экономика</div><ul class="detail-list"><li>Магазин ролей</li><li>Бонус</li><li>Заявки</li></ul></div>
+      </div>
+      <div class="roles-container">
+        <div class="detail-title">Система ролей</div>
+        <div class="role-item"><strong>@DOORSER</strong> — обычная роль.</div>
+        <div class="role-item"><strong>@Server Booster</strong> — бустер.</div>
+        <div class="role-item"><strong>@Бот</strong> — боты.</div>
+        <div class="role-item"><strong>@OLD</strong> — старички.</div>
+        <div class="role-item"><strong>@Младший модератор</strong> — 1 класс.</div>
+        <div class="role-item"><strong>@Средний модератор</strong> — 2 класс.</div>
+        <div class="role-item"><strong>@Старший модератор</strong> — 3 класс.</div>
+        <div class="role-item"><strong>@Перерождённый</strong> — бог сервера.</div>
+      </div>
+      <div class="bot-commands">
+        <div class="detail-title">Lotus_bot</div>
+        <p style="font-size:.9rem;color:#b0b0b0;margin-bottom:.5rem">Команды: <code>Lotus_help</code></p>
+        <ul class="command-list">
+          <li>Lotus_bonus</li><li>Lotus_баланс</li><li>Lotus_магазин</li><li>Lotus_работать</li><li>Lotus_работать.админ</li>
+        </ul>
+      </div>
+      <a href="https://discord.gg/RqTTVWqEQs" class="join-button" target="_blank" rel="noopener noreferrer">Присоединиться к серверу</a>
+      <div class="members-section">
+        <div class="members-title">Ключевые участники</div>
+        <ul class="members-list">
+          <li class="member">
+            <img class="member-avatar" src="https://i.ibb.co/6P6bXGZ/black-cat.jpg" alt="Kot ystal" />
+            <div class="member-info">
+              <div class="member-name">Kot ystal <span class="member-tag">(robert273738478272946)</span></div>
+              <div class="member-bio">Великий бог этого сервера!</div>
+            </div>
+          </li>
+          <li class="member">
+            <img class="member-avatar" src="https://i.ibb.co/4V0z6ZP/yogurt.jpg" alt="Yogurt" />
+            <div class="member-info">
+              <div class="member-name">!𝕐𝕠𝕘𝕦𝕣𝕥? <span class="member-tag">(invizible123)</span></div>
+              <div class="member-bio">Великий админ, создатель экономики и этого сайта.</div>
+            </div>
+          </li>
+          <li class="member">
+            <img class="member-avatar" src="https://i.ibb.co/X3rY2cK/cat-candy.jpg" alt="MaxiM" />
+            <div class="member-info">
+              <div class="member-name">MaxiM <span class="member-tag">(maxim055931)</span></div>
+              <div class="member-bio">Старший админ, принимает заявки на модера.</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="widget-container">
+      <div class="discord-widget">
+        <iframe src="https://discord.com/widget?id=1553469806789787748&theme=dark" width="350" height="500" frameborder="0" sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts" title="Discord widget"></iframe>
+      </div>
+      <div class="widget-label">Discord</div>
+    </div>
+  </div>
+  <div class="cta-note">
+    <span><strong>World Lotus</strong></span><span>·</span>
+    <a href="https://discord.gg/RqTTVWqEQs" target="_blank" rel="noopener noreferrer">discord.gg/RqTTVWqEQs</a>
+    <span>·</span><span>онлайн 24/7</span>
+  </div>
+</main>
+
+<button class="admin-trigger" id="adminTrigger" title="Вход в админ-панель">⚙</button>
+
+<div class="code-modal" id="codeModal">
+  <div class="code-box">
+    <h3>🔐 Вход в админ-панель</h3>
+    <p>Введите секретный код</p>
+    <input type="password" id="codeInput" placeholder="••••••••" autocomplete="off" />
+    <div class="code-error" id="codeError"></div>
+    <button class="admin-btn" id="codeSubmit" style="width:100%;justify-content:center;margin-top:.5rem">Войти</button>
+  </div>
+</div>
+
+<div class="admin-overlay" id="adminOverlay">
+  <div class="admin-panel">
+    <div class="admin-header">
+      <h2>🛡 Админ-панель World Lotus</h2>
+      <button class="admin-close" id="adminClose">✕</button>
+    </div>
+    <div class="admin-tabs">
+      <button class="admin-tab active" data-tab="events">🎉 Ивенты</button>
+      <button class="admin-tab" data-tab="analytics">📊 Аналитика</button>
+    </div>
+    <div class="admin-body">
+      <div class="admin-pane active" id="pane-events">
+        <div class="admin-form-group">
+          <label>Название ивента</label>
+          <input class="admin-input" id="evtTitle" placeholder="Например: Двойные бонусы!" maxlength="120" />
+        </div>
+        <div class="admin-form-group">
+          <label>Описание</label>
+          <textarea class="admin-textarea" id="evtDesc" placeholder="Расскажи, что происходит..." maxlength="500"></textarea>
+        </div>
+        <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:1.5rem">
+          <button class="admin-btn" id="evtCreate">🚀 Запустить глобально</button>
+          <button class="admin-btn danger" id="evtClear">🛑 Остановить ивент</button>
+        </div>
+        <div class="detail-title">История ивентов</div>
+        <ul class="event-history-list" id="eventHistory"><li class="empty-state">Пока нет ивентов</li></ul>
+      </div>
+      <div class="admin-pane" id="pane-analytics">
+        <div class="stat-grid">
+          <div class="stat-card"><div class="stat-value" id="stOnline">0</div><div class="stat-label">Онлайн</div></div>
+          <div class="stat-card"><div class="stat-value" id="stViews">0</div><div class="stat-label">Просмотры</div></div>
+          <div class="stat-card"><div class="stat-value" id="stVisits">0</div><div class="stat-label">Визиты</div></div>
+          <div class="stat-card"><div class="stat-value" id="stUptime">0</div><div class="stat-label">Аптайм</div></div>
+        </div>
+        <div class="detail-title">Активные сессии</div>
+        <table class="analytics-table" id="sessionsTable">
+          <thead><tr><th>IP</th><th>Экран</th><th>Источник</th><th>Время</th></tr></thead>
+          <tbody><tr><td colspan="4" class="empty-state">Нет данных</td></tr></tbody>
+        </table>
+        <div style="margin-top:1rem">
+          <button class="admin-btn ghost" id="refreshAnalytics">🔄 Обновить</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  const c=document.getElementById('stars');
+  for(let i=0;i<140;i++){
+    const s=document.createElement('div');s.className='star';
+    const sz=Math.random()*2.5+.8;
+    s.style.width=sz+'px';s.style.height=sz+'px';
+    s.style.left=Math.random()*100+'vw';s.style.top=Math.random()*100+'vh';
+    s.style.setProperty('--dur',(Math.random()*5+3).toFixed(2)+'s');
+    s.style.setProperty('--delay',(Math.random()*8).toFixed(2)+'s');
+    s.style.boxShadow=`0 0 ${sz*3}px ${sz*0.6}px rgba(255,255,255,${.3+Math.random()*.5})`;
+    c.appendChild(s);
+  }
+})();
+
+const $ = id => document.getElementById(id);
+function toast(msg){
+  const t=$('toast');t.textContent=msg;t.classList.add('show');
+  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+let ws=null, isAdmin=false, reconnectTimer=null;
+const WS_URL = (location.protocol==='https:'?'wss://':'ws://')+location.host;
+
+function connect(){
+  ws = new WebSocket(WS_URL);
+  ws.onopen = () => {
+    clearTimeout(reconnectTimer);
+    ws.send(JSON.stringify({
+      type:'hello',
+      ua: navigator.userAgent,
+      ref: document.referrer || 'direct',
+      screen: `${screen.width}x${screen.height}`
+    }));
+  };
+  ws.onmessage = (e) => {
+    let d; try { d=JSON.parse(e.data); } catch { return; }
+    if(d.type==='online'){
+      $('onlineCount').textContent = d.count;
+      $('stOnline').textContent = d.count;
+    }
+    if(d.type==='event'){
+      showEvent(d.event);
+    }
+    if(d.type==='auth'){
+      if(d.ok){
+        isAdmin=true;
+        $('codeModal').classList.remove('open');
+        $('adminOverlay').classList.add('open');
+        toast('Добро пожаловать, админ!');
+      } else {
+        $('codeError').textContent='Неверный код';
+      }
+    }
+    if(d.type==='analytics'){
+      renderAnalytics(d.data);
+    }
+  };
+  ws.onclose = () => { reconnectTimer = setTimeout(connect, 2000); };
+  ws.onerror = () => { try{ws.close();}catch{} };
+}
+connect();
+
+function showEvent(evt){
+  const banner=$('eventBanner');
+  if(evt){
+    $('eventBannerText').textContent = evt.title + (evt.desc ? ' — '+evt.desc : '');
+    banner.classList.add('show');
+  } else {
+    banner.classList.remove('show');
+  }
+}
+$('eventBannerClose').onclick = () => $('eventBanner').classList.remove('show');
+
+$('adminTrigger').onclick = () => {
+  if(isAdmin){ $('adminOverlay').classList.add('open'); return; }
+  $('codeModal').classList.add('open');
+  $('codeInput').value=''; $('codeError').textContent='';
+  setTimeout(()=>$('codeInput').focus(),100);
+};
+
+let titleClicks=0, titleTimer=null;
+$('serverTitle').onclick = () => {
+  titleClicks++;
+  clearTimeout(titleTimer);
+  titleTimer=setTimeout(()=>titleClicks=0,1500);
+  if(titleClicks>=5){ titleClicks=0; $('adminTrigger').click(); }
+};
+
+$('codeSubmit').onclick = () => {
+  const code=$('codeInput').value;
+  if(!code){ $('codeError').textContent='Введите код'; return; }
+  ws.send(JSON.stringify({type:'auth',code}));
+};
+$('codeInput').addEventListener('keydown',e=>{ if(e.key==='Enter') $('codeSubmit').click(); });
+$('codeModal').addEventListener('click',e=>{ if(e.target===$('codeModal')) $('codeModal').classList.remove('open'); });
+
+document.querySelectorAll('.admin-tab').forEach(tab=>{
+  tab.onclick = () => {
+    document.querySelectorAll('.admin-tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.admin-pane').forEach(p=>p.classList.remove('active'));
+    tab.classList.add('active');
+    $('pane-'+tab.dataset.tab).classList.add('active');
+    if(tab.dataset.tab==='analytics' && isAdmin) ws.send(JSON.stringify({type:'requestAnalytics'}));
+  };
+});
+$('adminClose').onclick = () => $('adminOverlay').classList.remove('open');
+$('adminOverlay').addEventListener('click',e=>{ if(e.target===$('adminOverlay')) $('adminOverlay').classList.remove('open'); });
+
+$('evtCreate').onclick = () => {
+  const title=$('evtTitle').value.trim();
+  const desc=$('evtDesc').value.trim();
+  if(!title){ toast('Введите название ивента'); return; }
+  ws.send(JSON.stringify({type:'createEvent',title,desc}));
+  $('evtTitle').value=''; $('evtDesc').value='';
+  toast('Ивент запущен глобально!');
+};
+$('evtClear').onclick = () => {
+  ws.send(JSON.stringify({type:'clearEvent'}));
+  toast('Ивент остановлен');
+};
+$('refreshAnalytics').onclick = () => {
+  if(isAdmin) ws.send(JSON.stringify({type:'requestAnalytics'}));
+};
+
+function fmtTime(ts){
+  const d=new Date(ts);
+  return d.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+function fmtUptime(sec){
+  const h=Math.floor(sec/3600), m=Math.floor((sec%3600)/60), s=sec%60;
+  return `${h}ч ${m}м`;
+}
+function renderAnalytics(a){
+  $('stOnline').textContent = a.online;
+  $('stViews').textContent = a.pageViews;
+  $('stVisits').textContent = a.totalVisits;
+  $('stUptime').textContent = fmtUptime(a.uptimeSec);
+
+  const tbody = $('sessionsTable').querySelector('tbody');
+  if(!a.sessions.length){
+    tbody.innerHTML = '<tr><td colspan="4" class="empty-state">Нет активных сессий</td></tr>';
+  } else {
+    tbody.innerHTML = a.sessions.map(s=>`
+      <tr>
+        <td><span class="session-dot"></span>${s.ip||'—'}</td>
+        <td>${s.screen||'—'}</td>
+        <td>${(s.ref||'direct').slice(0,40)}</td>
+        <td>${fmtTime(s.startedAt)}</td>
+      </tr>
+    `).join('');
+  }
+
+  const hist = $('eventHistory');
+  if(!a.events.length){
+    hist.innerHTML = '<li class="empty-state">Пока нет ивентов</li>';
+  } else {
+    hist.innerHTML = a.events.map(e=>`
+      <li class="event-history-item">
+        <div class="evt-content">
+          <div class="evt-title">${escapeHtml(e.title)}</div>
+          ${e.desc?`<div class="evt-desc">${escapeHtml(e.desc)}</div>`:''}
+        </div>
+        <div class="evt-time">${fmtTime(e.createdAt)}</div>
+      </li>
+    `).join('');
+  }
+  showEvent(a.activeEvent);
+}
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+setInterval(()=>{
+  if(isAdmin && $('adminOverlay').classList.contains('open') && $('pane-analytics').classList.contains('active')){
+    ws.send(JSON.stringify({type:'requestAnalytics'}));
+  }
+}, 5000);
+</script>
+</body>
+</html>
